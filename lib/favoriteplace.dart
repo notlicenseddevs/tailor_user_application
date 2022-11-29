@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
+import 'package:tailor_user_application/registarplace.dart';
+import 'package:get/get.dart';
 
 class FavoritePlace extends StatefulWidget {
 
@@ -39,8 +41,10 @@ class _FavoritePlaceState extends State<FavoritePlace> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          FavoritePlaceList.add({'PlaceName':'장소 1', 'PlaceAddress':'서울특별시'});
+        onPressed: () async {
+          //FavoritePlaceList.add({'PlaceName':'장소 1', 'PlaceAddress':'서울특별시'});
+          var value = await Get.to(RegistarPlace());
+          print(value);
           setState((){});
         },
         backgroundColor: Colors.deepPurple,

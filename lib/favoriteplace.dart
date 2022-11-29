@@ -43,8 +43,10 @@ class _FavoritePlaceState extends State<FavoritePlace> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           //FavoritePlaceList.add({'PlaceName':'장소 1', 'PlaceAddress':'서울특별시'});
-          var value = await Get.to(RegistarPlace());
-          print(value);
+          List<String> value = await Get.to(RegistarPlace()) as List<String>;
+          if(value.length == 3) {
+            FavoritePlaceList.add({'PlaceName':value[2], 'PlaceAddress':'${value[0]}, ${value[1]}'});
+          }
           setState((){});
         },
         backgroundColor: Colors.deepPurple,

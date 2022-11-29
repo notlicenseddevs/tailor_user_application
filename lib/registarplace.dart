@@ -32,7 +32,18 @@ class _RegistarPlaceState extends State<RegistarPlace> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                var result = Get.to(SearchbyGoogleMap());
+                List<double> result = await Get.to(SearchbyGoogleMap()) as List<double>;
+                if(result.length == 2) {
+                  print('lng lat received');
+                  lng = result[0].toString();
+                  lat = result[1].toString();
+                }
+                else {
+                  print('***** ${result.length} received!');
+                }
+                setState(() {
+
+                });
               },
               child: Text('Google Map으로 장소 검색하기'),
             ),
@@ -87,7 +98,7 @@ class _RegistarPlaceState extends State<RegistarPlace> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.back(result: "hello");
+          Get.back(result: [lng, lat, inputText]);
         },
         backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.save),

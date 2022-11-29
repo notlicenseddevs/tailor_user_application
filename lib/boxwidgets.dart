@@ -5,7 +5,8 @@ class MenuBox extends StatelessWidget {
   String MenuName;
   Color BoxColor;
   Widget TargetWidget;
-  MenuBox(this.MenuName, this.BoxColor, this.TargetWidget);
+  final dynamic? _Argument;
+  MenuBox(this.MenuName, this.BoxColor, this.TargetWidget, this._Argument);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class MenuBox extends StatelessWidget {
         child: InkWell(
           onTap: () {
             print("tab");
-            Get.to(TargetWidget);
+            Get.to(TargetWidget, arguments: _Argument);
           },
           child: Container(
             height: 110,

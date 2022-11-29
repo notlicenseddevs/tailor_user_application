@@ -48,6 +48,8 @@ dependencies:
   flutter_secure_storage: ^6.0.0
   google_maps_flutter: ^2.2.1
   http: ^0.13.5
+  geolocator: ^9.0.2
+  mqtt_client: ^9.7.2
 
 dev_dependencies:
   flutter_test:

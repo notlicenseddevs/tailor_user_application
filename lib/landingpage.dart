@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:tailor_user_application/mainpage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tailor_user_application/mainpage_guest.dart';
@@ -36,11 +35,11 @@ class _LandingPageState extends State<LandingPage> {
     print("out");
     print(userInfo);
 
-    if(userInfo == null) {
+    if(userInfo != null) {
       Get.offAll(MainPage());
     }
     else {
-      Get.offAll(MainPageGuest());
+      Get.to(MainPageGuest(), arguments: storage);
     }
   }
   @override

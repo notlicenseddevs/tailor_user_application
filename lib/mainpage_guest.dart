@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
-import 'package:tailor_user_application/favoriteplace.dart';
-import 'package:tailor_user_application/registerface.dart';
+import 'package:tailor_user_application/registerUser.dart';
 import 'package:tailor_user_application/temp.dart';
+import 'package:get/get.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MainPageGuest extends StatefulWidget {
 
@@ -11,7 +12,7 @@ class MainPageGuest extends StatefulWidget {
 }
 
 class _MainPageGuestState extends State<MainPageGuest> {
-  int _selectedIndex = 0;
+  FlutterSecureStorage storage = Get.arguments as FlutterSecureStorage;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,8 +63,8 @@ class _MainPageGuestState extends State<MainPageGuest> {
                 ],
               ),
             ),
-            MenuBox('회원가입', Colors.lightBlue, TempPage()),
-            MenuBox('로그인', Colors.orange, TempPage()),
+            MenuBox('회원가입', Colors.lightBlue, RegisterUser(), storage),
+            MenuBox('로그인', Colors.orange, TempPage(), null),
             SizedBox(
               height: 50,
             )

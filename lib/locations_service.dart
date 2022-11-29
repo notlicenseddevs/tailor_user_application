@@ -3,7 +3,7 @@ import 'dart:convert' as convert;
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
-  final String key = 'AIzaSyDEU3UBdiKBQEwCC6dol_JgkR21GyTjaZk';
+  final String key = 'API_KEYS';
 
   Future<String> getPlaceId(String input) async {
     final String url = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=$input&inputtype=textquery&key=$key';

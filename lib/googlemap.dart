@@ -13,6 +13,8 @@ class SearchbyGoogleMap extends StatefulWidget {
 
 class _SearchbyGoogleMapState extends State<SearchbyGoogleMap> {
   double lng=0, lat=1;
+  String name = '';
+  String url = '';
   TextEditingController _searchController = TextEditingController();
   Completer<GoogleMapController> _controller = Completer();
   late Position currentPosition;
@@ -96,7 +98,7 @@ class _SearchbyGoogleMapState extends State<SearchbyGoogleMap> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             print('$lng and $lat sends');
-            Get.back(result: [lng, lat]);
+            Get.back(result: [lng, lat, name, url]);
           },
           backgroundColor: Colors.deepPurple,
           child: const Icon(Icons.save),
@@ -107,6 +109,9 @@ class _SearchbyGoogleMapState extends State<SearchbyGoogleMap> {
   Future<void> _goToPlace(Map<String, dynamic> place) async {
     final double place_lat = place['geometry']['location']['lat'];
     final double place_lng = place['geometry']['location']['lng'];
+    name = place['name'];
+    url = place['url'];
+    print('name and url : $name, $url');
 
     final GoogleMapController controller = await _controller.future;
     controller.moveCamera(CameraUpdate.newCameraPosition (

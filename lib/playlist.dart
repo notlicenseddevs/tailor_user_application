@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
+import 'package:tailor_user_application/registerPlaylist.dart';
 
 class PlayList extends StatefulWidget {
 
@@ -39,9 +41,14 @@ class _PlayListState extends State<PlayList> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-        PlayList.add({'PlayListName':'플레이리스트', 'PlayListURL':'youtu.be/link'});
-        setState((){});
+        onPressed: () async {
+        //PlayList.add({'PlayListName':'플레이리스트', 'PlayListURL':'youtu.be/link'});
+          List<String?> value = await Get.to(RegisterPlaylist()) as List<String?>;
+          print(value);
+          if(value.length == 2) {
+            PlayList.add({'PlayListName':value[0], 'PlayListURL':value[1]});
+          }
+          setState((){});
         },
         backgroundColor: Colors.redAccent,
         child: const Icon(Icons.add),

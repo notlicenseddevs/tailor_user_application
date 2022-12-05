@@ -1,9 +1,10 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'package:geolocator/geolocator.dart';
+import 'package:tailor_user_application/api_key.dart' as API_KEY_FILE;
 
 class LocationService {
-  final String key = 'API_KEYS';
+  final String key = API_KEY_FILE.API_KEYS;
 
   Future<String> getPlaceId(String input) async {
     final String url = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=$input&inputtype=textquery&key=$key';
@@ -23,9 +24,9 @@ class LocationService {
 
     var response = await http.get(Uri.parse(url));
     var json = convert.jsonDecode(response.body);
+    print('location service json === ${json}');
     var results = json['result'] as Map<String, dynamic>;
 
-    print(results);
     return results;
   }
 

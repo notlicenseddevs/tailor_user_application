@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
+import 'package:tailor_user_application/crypto_service.dart';
 
 class TempPage extends StatefulWidget {
 

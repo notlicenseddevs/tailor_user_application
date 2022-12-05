@@ -4,6 +4,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:tailor_user_application/mainpage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tailor_user_application/mainpage_guest.dart';
+import 'package:tailor_user_application/crypto_service.dart';
 
 
 class LandingPage extends StatefulWidget {
@@ -13,34 +14,32 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-
   static final storage = new FlutterSecureStorage();
+  static final cryptoService appCrypto = cryptoService();
+  Widget goingTo = LandingPage();
+  bool _isReady = false;
+
   String? userInfo = "";
   @override
   void initState() {
-    // Timer(Duration(seconds: 3),() {
-    //   Get.offAll(MainPage());
-    // }); // Timer
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _asyncMethod();
-    });
+    _asyncMethod();
   }
 
   _asyncMethod() async {
-    print("in");
+    await storage.deleteAll();
     await storage.read(key: "login").then((val){userInfo = val;}).catchError((error) {
       print("error : $error");
     });
-    print("out");
     print(userInfo);
 
     if(userInfo != null) {
-      Get.offAll(MainPage());
+      goingTo = MainPage();
     }
     else {
-      Get.to(MainPageGuest(), arguments: storage);
+      goingTo = MainPageGuest();
     }
+    Get.offAll(goingTo, arguments: storage);
   }
   @override
   Widget build(BuildContext context) {

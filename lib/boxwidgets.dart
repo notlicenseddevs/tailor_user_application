@@ -1,4 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tailor_user_application/favoriteplace.dart';
+import 'package:tailor_user_application/mainpage.dart';
+import 'package:tailor_user_application/mqttConnection.dart';
 import 'package:get/get.dart';
 
 class MenuBox extends StatelessWidget {
@@ -43,9 +49,13 @@ class MenuBox extends StatelessWidget {
 }
 
 class PlaceBox extends StatelessWidget {
+  String PlaceID;
   String PlaceName;
-  String PlaceAddress;
-  PlaceBox(this.PlaceName, this.PlaceAddress);
+  double PlaceLat;
+  double PlaceLng;
+  String? PlaceDescribe;
+  String? PlaceURL;
+  PlaceBox(this.PlaceID, this.PlaceName, this.PlaceLat, this.PlaceLng, this.PlaceDescribe, this.PlaceURL);
 
   @override
   Widget build(BuildContext context) {
@@ -53,40 +63,89 @@ class PlaceBox extends StatelessWidget {
       margin: EdgeInsets.fromLTRB(30,40,30,0),
       color: Colors.white,
       child: Container(
-        height: 140,
+        height: 160,
         width: 600,
         padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  child: Text(PlaceName,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                      fontSize: 25,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    child: Text(PlaceName,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                        fontSize: 25,
+                      ),
                     ),
                   ),
-                ),
-                Icon(Icons.edit),
-              ],
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: Text(PlaceAddress,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: -0.5,
-                  fontSize: 15,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.all(5),
+                        constraints: BoxConstraints(),
+                        onPressed: () {
+                          print('pong');
+
+                        },
+                        icon: Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        padding: EdgeInsets.all(5),
+                        constraints: BoxConstraints(),
+                        onPressed: () {
+                          print('pong');
+                          String msg = jsonEncode({"cmd_type":6,"target_list":2,"item_oid":PlaceID});
+                          mqttConnection mqtt = mqttConnection();
+                          mqtt.requestToServer(msg);
+                          Get.off(FavoritePlace());
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text('좌표 : $PlaceLat, $PlaceLng',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    letterSpacing: -0.5,
+                    fontSize: 15,
+                  ),
                 ),
               ),
-            ),
-          ],
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text('설명 : $PlaceDescribe',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    letterSpacing: -0.5,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text('주소 : $PlaceURL',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    letterSpacing: -0.5,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

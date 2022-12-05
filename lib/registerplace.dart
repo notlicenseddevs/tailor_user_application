@@ -2,20 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tailor_user_application/googlemap.dart';
 
-class RegistarPlace extends StatefulWidget {
-
+class RegisterPlace extends StatefulWidget {
+  String? inputText;
+  double? lng = 0;
+  double? lat = 0;
+  String? name;
+  String? url;
+  RegisterPlace({this.inputText, this.lng, this.lat, this.name, this.url});
   @override
-  _RegistarPlaceState createState() => _RegistarPlaceState();
+  _RegisterPlaceState createState() => _RegisterPlaceState(inputText: inputText, lng: lng, lat: lat, name: name, url: url);
 }
 
-class _RegistarPlaceState extends State<RegistarPlace> {
+class _RegisterPlaceState extends State<RegisterPlace> {
   @override
   void initState() {
     super.initState();
   }
-  String inputText = '';
-  String lng = '';
-  String lat = '';
+  String? inputText = '';
+  String? name = '' ;
+  double? lng = 0;
+  double? lat = 0;
+  String? url = '';
+  _RegisterPlaceState({this.inputText, this.lng, this.lat, this.name, this.url});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,11 +41,13 @@ class _RegistarPlaceState extends State<RegistarPlace> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                List<double> result = await Get.to(SearchbyGoogleMap()) as List<double>;
-                if(result.length == 2) {
-                  print('lng lat received');
-                  lng = result[0].toString();
-                  lat = result[1].toString();
+                List<dynamic> result = await Get.to(SearchbyGoogleMap());
+                if(result.length == 4) {
+                  print('received from SearchbyGoogleMap');
+                  lng = result[0];
+                  lat = result[1];
+                  name = result[2].toString();
+                  url = result[3].toString();
                 }
                 else {
                   print('***** ${result.length} received!');
@@ -50,6 +61,8 @@ class _RegistarPlaceState extends State<RegistarPlace> {
             Container(
               child: Column(
                 children: [
+                  Text("장소명 : $name"),
+                  Text("URL : $url"),
                   Text("위도 : $lng"),
                   Text("경도 : $lat"),
                 ],
@@ -96,11 +109,17 @@ class _RegistarPlaceState extends State<RegistarPlace> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+
+      floatingActionButton: (lat!=null)&(lng!=null) ? FloatingActionButton(
         onPressed: () {
-          Get.back(result: [lng, lat, inputText]);
+          Get.back(result: [lat, lng, inputText, name, url]);
         },
         backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.save),
+      )
+      : FloatingActionButton(
+        onPressed: null,
+        backgroundColor: Colors.black26,
         child: const Icon(Icons.save),
       )
     );

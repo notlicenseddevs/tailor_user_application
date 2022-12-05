@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
 import 'package:tailor_user_application/favoriteplace.dart';
+import 'package:tailor_user_application/logout.dart';
 import 'package:tailor_user_application/playlist.dart';
 import 'package:tailor_user_application/registerface.dart';
 import 'package:tailor_user_application/temp.dart';
@@ -12,7 +15,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-
+  FlutterSecureStorage storage = Get.arguments as FlutterSecureStorage;
   int _selectedIndex = 0;
   List<BottomNavigationBarItem> bottomItems=[
     BottomNavigationBarItem(
@@ -85,7 +88,7 @@ class _MainPageState extends State<MainPage> {
             MenuBox('얼굴 등록하기', Colors.indigo, RegisterFace(), null),
             MenuBox('장소 즐겨찾기', Colors.deepPurple, FavoritePlace(), null),
             MenuBox('플레이리스트', Colors.redAccent, PlayList(), null),
-            MenuBox('로그아웃', Colors.black38, TempPage(), null),
+            MenuBox('로그아웃', Colors.black38, LogoutPage(), storage),
             SizedBox(
               height: 50,
             )

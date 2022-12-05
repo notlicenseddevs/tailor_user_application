@@ -1,11 +1,9 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-
-import 'package:path/path.dart' show join;
-import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:tailor_user_application/mqttConnection.dart';
+import 'dart:convert';
 
 
 class RegisterFace extends StatefulWidget {
@@ -75,20 +73,20 @@ class _RegisterFaceState extends State<RegisterFace> {
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(50),
-                  width: min(MediaQuery.of(context).size.height*0.8, MediaQuery.of(context).size.width*0.8) ,
-                  height: min(MediaQuery.of(context).size.height*0.8, MediaQuery.of(context).size.width*0.8) ,
+                  padding: EdgeInsets.all(80),
                   child: CameraPreview(_controller),
                 ),
-                ElevatedButton(onPressed: () async {
-                  final path = await _controller.takePicture();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => DisplayPictureScreen(imagePath: path.path)),
-                  );
-                },
-                child: Text('사진 찍기'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo,))
+                ElevatedButton(
+                  onPressed: () async {
+                    final path = await _controller.takePicture();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DisplayPictureScreen(imagePath: path.path)),
+                    );
+                  },
+                  child: Text('사진 찍기'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo,)
+                ),
               ],
             ),
           )
@@ -105,9 +103,30 @@ class DisplayPictureScreen extends StatelessWidget {
   const DisplayPictureScreen({super.key, required this.imagePath});
   @override
   Widget build(BuildContext context) {
+    print(imagePath);
     return Scaffold(
-      appBar: AppBar(title: Text('Display the Picture')),
-      body: Image.file(File(imagePath)),
+      appBar: AppBar(
+        title: Text('얼굴 등록하기'),
+        backgroundColor: Colors.indigo,
+      ),
+      body: Column(
+        children: [
+          Container(
+              padding: EdgeInsets.all(80),
+              child: Image.file(File(imagePath)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              mqttConnection mqtt = mqttConnection();
+              Uint8List bytes = await File(imagePath).readAsBytes();
+              String base64bytes = base64.encode(bytes);
+              mqtt.requestToServer('{"cmd_type":1,"face_img":"${base64bytes}"}');
+            },
+            child: Text('사진 등록하기'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo,)
+          ),
+        ],
+      ),
     );
   }
 }

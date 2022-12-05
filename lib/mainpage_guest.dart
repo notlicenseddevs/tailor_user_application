@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
+import 'package:tailor_user_application/login.dart';
 import 'package:tailor_user_application/registerUser.dart';
 import 'package:tailor_user_application/temp.dart';
 import 'package:get/get.dart';
@@ -64,7 +65,7 @@ class _MainPageGuestState extends State<MainPageGuest> {
               ),
             ),
             MenuBox('회원가입', Colors.lightBlue, RegisterUser(), storage),
-            MenuBox('로그인', Colors.orange, TempPage(), null),
+            MenuBox('로그인', Colors.orange, Login(), storage),
             SizedBox(
               height: 50,
             )

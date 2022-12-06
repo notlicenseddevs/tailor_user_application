@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tailor_user_application/landingpage.dart';
@@ -8,17 +11,18 @@ Future<void> main() async {
   // final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   // final deviceInfo = await deviceInfoPlugin.androidInfo;
   // final deviceId = deviceInfo.id;
+  StreamController<bool> check = StreamController();
   mqttConnection mqtt = mqttConnection();
   try {
-    await mqtt.connect().then((e) => {
-      runApp(const MyApp())
-    });
+    mqtt.connect(check);
+    check.stream.listen((event) {runApp(const MyApp());});
   } catch (e, s) {
     print(s);
   }
+
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget with WidgetsBindingObserver {
   const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -26,4 +30,5 @@ class MyApp extends StatelessWidget {
       home: LandingPage(),
     );
   }
+
 }

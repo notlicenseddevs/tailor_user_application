@@ -14,16 +14,35 @@ class RegisterPlace extends StatefulWidget {
 }
 
 class _RegisterPlaceState extends State<RegisterPlace> {
-  @override
-  void initState() {
-    super.initState();
-  }
   String? inputText = '';
   String? name = '' ;
   double? lng = 0;
   double? lat = 0;
   String? url = '';
   _RegisterPlaceState({this.inputText, this.lng, this.lat, this.name, this.url});
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _describeController = TextEditingController();
+  TextEditingController _positionController = TextEditingController();
+  TextEditingController _urlController = TextEditingController();
+
+  String p1 = '';
+  String p2 = '';
+  @override
+  void initState() {
+    super.initState();
+    if(name != null) {
+      _nameController.text = name!;
+    }
+    if(inputText != null) {
+      _describeController.text = inputText!;
+    }
+    if(url != null) {
+      _urlController.text = url!;
+    }
+    if(lat!=null && lng!=null) {
+      _positionController.text = '위도 : $lat, 경도 : $lng';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,33 +58,36 @@ class _RegisterPlaceState extends State<RegisterPlace> {
         padding: EdgeInsets.fromLTRB(30, 40, 30, 0),
         child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () async {
-                List<dynamic> result = await Get.to(SearchbyGoogleMap());
-                if(result.length == 4) {
-                  print('received from SearchbyGoogleMap');
-                  lng = result[0];
-                  lat = result[1];
-                  name = result[2].toString();
-                  url = result[3].toString();
-                }
-                else {
-                  print('***** ${result.length} received!');
-                }
-                setState(() {
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20.0,0,20.0,20.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                ),
+                onPressed: () async {
+                  List<dynamic> result = await Get.to(SearchbyGoogleMap());
+                  if(result.length == 4) {
+                    print('received from SearchbyGoogleMap');
+                    lng = result[0];
+                    lat = result[1];
+                    _positionController.text = '위도 : $lat, 경도 : $lng';
+                    name = result[2].toString();
+                    if(name!=null) {
+                      _nameController.text = name!;
+                    };
+                    url = result[3].toString();
+                    if(url!=null) {
+                      _urlController.text = url!;
+                    }
+                  }
+                  else {
+                    print('***** ${result.length} received!');
+                  }
+                  setState(() {
 
-                });
-              },
-              child: Text('Google Map으로 장소 검색하기'),
-            ),
-            Container(
-              child: Column(
-                children: [
-                  Text("장소명 : $name"),
-                  Text("URL : $url"),
-                  Text("위도 : $lng"),
-                  Text("경도 : $lat"),
-                ],
+                  });
+                },
+                child: Text('Google Map으로 장소 검색하기'),
               ),
             ),
             Center(
@@ -77,29 +99,98 @@ class _RegisterPlaceState extends State<RegisterPlace> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20.0,0,20.0,10.0),
                         child: TextField(
+                          controller: _nameController,
+                          onChanged: (text) {
+                            inputText = text;
+                          },
+                          decoration: InputDecoration(
+                            labelText: '이름',
+                            hintText: '장소의 이름을 입력하세요.',
+                            floatingLabelStyle: TextStyle(color:Colors.deepPurple),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1, color: Colors.deepPurple),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1),
+                            ),
+                          ),
+                          keyboardType: TextInputType.name,
+                        ),
+
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20.0,0,20.0,10.0),
+                        child: TextField(
+                          controller: _describeController,
                           onChanged: (text) {
                             inputText = text;
                           },
                           decoration: InputDecoration(
                             labelText: '설명',
-                            hintText: '장소에 대한 설몀을 입력하세요.',
-                            labelStyle: TextStyle(color:Colors.redAccent),
+                            hintText: '장소에 대한 설명을 입력하세요.',
+                            floatingLabelStyle: TextStyle(color:Colors.deepPurple),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               borderSide:
-                              BorderSide(width: 1, color: Colors.redAccent),
+                              BorderSide(width: 1, color: Colors.deepPurple),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               borderSide:
-                              BorderSide(width: 1, color: Colors.redAccent),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              BorderSide(width: 1),
                             ),
                           ),
                           keyboardType: TextInputType.name,
                         ),
+
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20.0,0,20.0,10.0),
+                        child: TextField(
+                          controller: _positionController,
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            labelText: '위치 (수동 입력 불가)',
+                            floatingLabelStyle: TextStyle(color:Colors.deepPurple),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1, color: Colors.deepPurple),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1),
+                            ),
+                          ),
+                        ),
+
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20.0,0,20.0,10.0),
+                        child: TextField(
+                          controller: _urlController,
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            labelText: 'URL (수동 입력 불가)',
+                            floatingLabelStyle: TextStyle(color:Colors.deepPurple),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1, color: Colors.deepPurple),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              borderSide:
+                              BorderSide(width: 1),
+                            ),
+                          ),
+                        ),
+
                       ),
                     ],
                   ),

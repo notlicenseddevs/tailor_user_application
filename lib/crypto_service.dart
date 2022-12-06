@@ -5,8 +5,8 @@ import 'package:pointycastle/asymmetric/api.dart' as asymm_crypto;
 import 'package:async/async.dart';
 
 class cryptoService {
-  static late symm_crypto.AsymmetricKeyPair _myKeyPair;
-  static bool _isMaked = false;
+  static late final symm_crypto.AsymmetricKeyPair _myKeyPair;
+  static late bool _isMaked = false;
   static late final asymm_crypto.RSAPublicKey publicKey;
   static late final asymm_crypto.RSAPrivateKey _privateKey;
 

@@ -1,13 +1,13 @@
 import 'dart:async';
-
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tailor_user_application/crypto_service.dart';
+import 'package:tailor_user_application/mainpage.dart';
 import 'package:tailor_user_application/mqttConnection.dart';
 import 'landingpage.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Login extends StatefulWidget {
 
@@ -87,12 +87,12 @@ class _LoginState extends State<Login> {
           'id':idController.text.toString(),
           'password':passController.text.toString()
         }),
-      ).then((value) => Get.offAll(LandingPage()));
+      ).then((value) => Get.offAll(MainPage(), arguments: storage));
       return const Text('');
     }
     if (!_loginRequest && !_islogin && _isWrong) {
       return const Text('아이디나 비밀번호가 잘못되었습니다.');
     }
-    return const Text('에러 : 알 수 없는 상태');
+    return const Text('');
   }
 }

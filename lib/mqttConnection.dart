@@ -9,8 +9,11 @@ class mqttConnection {
   static final MqttServerClient client = MqttServerClient('43.201.126.212', '');
   static late final String clientToServerTopic;
   static late final String serverToClientTopic;
+  static late StreamController<bool> _initialSubscribeStream;
   static late StreamController<bool> _loginCheckStream;
+  static late StreamController<bool> _registarCheckStream;
   static late StreamController<dynamic> _placeDataStream;
+  static late StreamController<dynamic> _playlistDataStream;
 
   mqttConnection() {
     client.setProtocolV311();
@@ -44,10 +47,18 @@ class mqttConnection {
   }
 
   Future<void> requestToServer(String msg) async {
+    print('request to server called!!! : $msg');
     final builder = MqttClientPayloadBuilder();
     builder.addString(msg);
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
 
+  }
+
+  void registarRequest(String msg, StreamController<bool> check) async {
+    _registarCheckStream = check;
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(msg);
+    client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
   }
 
   void loginRequest(String msg, StreamController<bool> check) async {
@@ -64,12 +75,22 @@ class mqttConnection {
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
   }
 
-  void initialConnectionHandler(dynamic json) {
+  void playlistRequest(String msg, StreamController<dynamic> data) async {
+    print('playlist request called!! : $msg');
+    final builder = MqttClientPayloadBuilder();
+    _playlistDataStream = data;
+    builder.addString(msg);
+    client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
+  }
+
+  void initialConnectionHandler(dynamic json) async {
     serverToClientTopic = '${json['topic_name']}';
     clientToServerTopic = '${json['topic_name']}/user_command';
     client.subscribe('${serverToClientTopic}/reply', MqttQos.atMostOnce);
     client.subscribe('${serverToClientTopic}/sw_configs', MqttQos.atMostOnce);
     client.subscribe('${serverToClientTopic}/gps_configs', MqttQos.atMostOnce);
+    _initialSubscribeStream.add(true);
+    return;
   }
 
   void replyHandler(dynamic json) {
@@ -79,10 +100,16 @@ class mqttConnection {
       print(isSucceed);
       _loginCheckStream.add(isSucceed);
     }
+    else if(request_type == 9) {
+      bool isSucceed = json['succeed'];
+      print(isSucceed);
+      _registarCheckStream.add(isSucceed);
+    }
     return;
   }
   void swHandler(dynamic json) {
     print(json);
+    _playlistDataStream.add(json);
   }
   void gpsHandler(dynamic json) {
     print(json);
@@ -109,7 +136,8 @@ class mqttConnection {
     }
   }
 
-  Future<void> connect() async {
+  void connect(StreamController<bool> check) async {
+    _initialSubscribeStream = check;
     try {
       await client.connect();
     } on NoConnectionException catch (e) {
@@ -134,6 +162,7 @@ class mqttConnection {
     client.published!.listen((MqttPublishMessage message) {
       print(
           'EXAMPLE::Published notification:: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
+      print('published message : ${MqttPublishPayload.bytesToStringAsString(message.payload.message)}');
 
     });
 
@@ -152,7 +181,8 @@ class mqttConnection {
 
     const topic2 = 'connect/request';
     final builder = MqttClientPayloadBuilder();
-    builder.addString('{"dev_type":0,"device_id":"adcc","timestamp":14141,"public_key":"3421a"}');
+    builder.addString('{"dev_type":1,"device_id":"adcc","timestamp":14141,"public_key":"3421a"}');
     client.publishMessage(topic2, MqttQos.exactlyOnce, builder.payload!);
+    return;
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:tailor_user_application/landingpage.dart';
 import 'package:tailor_user_application/mqttConnection.dart';
@@ -72,18 +73,23 @@ class _LogoutPageState extends State<LogoutPage> {
                 onPressed: () async {
                   storage.delete(key: 'login');
                   mqtt.requestToServer('{"cmd_type":10,"hw_configs":{}}');
+                  Fluttertoast.showToast(
+                    msg: '로그아웃 되었습니다.',
+                    gravity: ToastGravity.BOTTOM,
+
+                  );
                   Get.offAll(LandingPage());
                 },
                 child: Text("로그아웃"),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  storage.deleteAll();
-                  mqtt.requestToServer('{"cmd_type":10,"hw_configs":{}}');
-                  Get.offAll(LandingPage());
-                },
-                child: Text("모든 데이터 삭제 후 로그아웃"),
-              ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     storage.deleteAll();
+              //     mqtt.requestToServer('{"cmd_type":10,"hw_configs":{}}');
+              //     Get.offAll(LandingPage());
+              //   },
+              //   child: Text("모든 데이터 삭제 후 로그아웃"),
+              // ),
             ],
           ),
         ),

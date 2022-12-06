@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tailor_user_application/googlemap.dart';
 
 class RegisterPlaylist extends StatefulWidget {
   String? inputText;
-  String? link;
-  RegisterPlaylist({this.inputText, this.link});
+  String? url;
+  RegisterPlaylist({this.inputText, this.url});
   @override
-  _RegisterPlaylistState createState() => _RegisterPlaylistState(inputText: inputText, link: link);
+  _RegisterPlaylistState createState() => _RegisterPlaylistState(inputText: inputText, url: url);
 }
 
 class _RegisterPlaylistState extends State<RegisterPlaylist> {
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _urlController = TextEditingController();
+  String? inputText = '';
+  String? url = '';
+  _RegisterPlaylistState({this.inputText, this.url});
+
   @override
   void initState() {
     super.initState();
+    if(inputText!=null) {
+      _nameController.text = inputText!;
+    }
+    if(url!=null) {
+      _urlController.text = url!;
+    }
   }
-  String? inputText = '';
-  String? link = '';
-  _RegisterPlaylistState({this.inputText, this.link});
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +50,14 @@ class _RegisterPlaylistState extends State<RegisterPlaylist> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20.0,0,20.0,10.0),
                         child: TextField(
+                          controller: _nameController,
                           onChanged: (text) {
                             inputText = text;
                           },
                           decoration: InputDecoration(
-                            labelText: '설명',
-                            hintText: '플레이리스트에 대한 설몀을 입력하세요.',
-                            labelStyle: TextStyle(color:Colors.redAccent),
+                            labelText: '이름',
+                            hintText: '플레이리스트의 이름을 입력하세요.',
+                            floatingLabelStyle: TextStyle(color:Colors.redAccent),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               borderSide:
@@ -57,10 +66,7 @@ class _RegisterPlaylistState extends State<RegisterPlaylist> {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               borderSide:
-                              BorderSide(width: 1, color: Colors.redAccent),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              BorderSide(width: 1),
                             ),
                           ),
                           keyboardType: TextInputType.name,
@@ -69,13 +75,14 @@ class _RegisterPlaylistState extends State<RegisterPlaylist> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20.0,0,20.0,10.0),
                         child: TextField(
+                          controller: _urlController,
                           onChanged: (text) {
-                            link = text;
+                            url = text;
                           },
                           decoration: InputDecoration(
                             labelText: '링크',
                             hintText: '플레이리스트 링크를 넣으세요',
-                            labelStyle: TextStyle(color:Colors.redAccent),
+                            floatingLabelStyle: TextStyle(color:Colors.redAccent),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               borderSide:
@@ -84,10 +91,7 @@ class _RegisterPlaylistState extends State<RegisterPlaylist> {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10.0)),
                               borderSide:
-                              BorderSide(width: 1, color: Colors.redAccent),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              BorderSide(width: 1),
                             ),
                           ),
                           keyboardType: TextInputType.url,
@@ -103,7 +107,7 @@ class _RegisterPlaylistState extends State<RegisterPlaylist> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.back(result: [inputText, link]);
+          Get.back(result: [inputText, url]);
         },
         backgroundColor: Colors.redAccent,
         child: const Icon(Icons.save),

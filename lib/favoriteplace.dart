@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
 import 'package:tailor_user_application/mqttConnection.dart';
 import 'package:tailor_user_application/registerplace.dart';
@@ -20,11 +20,10 @@ class _FavoritePlaceState extends State<FavoritePlace> {
   @override
   void initState() {
     super.initState();
-    print('아!!!!!!!!!!!!!!!');
-    loadData();
+    loadData(true);
   }
 
-  void loadData() {
+  void loadData(bool doRefresh) {
     String id;
     String place_name;
     double latitude;
@@ -32,11 +31,12 @@ class _FavoritePlaceState extends State<FavoritePlace> {
     String gmap_link;
     String describe;
     StreamController<dynamic> data = StreamController();
-    StreamController<bool> check = StreamController();
     FavoritePlaceList.clear();
     _loading = true;
     setState(() {});
-    mqtt.placeRequest('{"cmd_type":4,"refresh_target":2}', data);
+    if(doRefresh) {
+      mqtt.placeRequest('{"cmd_type":4,"refresh_target":2}', data);
+    }
     data.stream.listen((v) {
       print(v.length);
       for(int i=0;i<v.length;i++) {
@@ -54,6 +54,7 @@ class _FavoritePlaceState extends State<FavoritePlace> {
     });
   }
 
+
   Widget listview_builder() {
     return ListView.builder(
       padding: const EdgeInsets.all(8),
@@ -62,7 +63,7 @@ class _FavoritePlaceState extends State<FavoritePlace> {
         return PlaceBox(
             FavoritePlaceList[index]['PlaceID'], FavoritePlaceList[index]['PlaceName'],
             FavoritePlaceList[index]['PlaceLat'], FavoritePlaceList[index]['PlaceLng'],
-            FavoritePlaceList[index]['PlaceDescribe'], FavoritePlaceList[index]['PlaceURL']
+            FavoritePlaceList[index]['PlaceDescribe'], FavoritePlaceList[index]['PlaceURL'], loadData
         );
       },
     );
@@ -89,25 +90,21 @@ class _FavoritePlaceState extends State<FavoritePlace> {
         onPressed: () async {
           List<dynamic?> value = await Get.to(RegisterPlace()) as List<dynamic?>;
           print(value);
-          // if(value.length == 5) {
-          //   for(int i=0;i<5;i++) {
-          //     if(value[i] == null) value[i] = 'None';
-          //   }
-          //   for(int i=0;i<5;i++) {
-          //     print('NULL CHECK!!! value $i is ${value[i]}');
-          //   }
-          Map<String, dynamic> msg = {"place_name":value[3], "latitude":value[0], "longitude":value[1], "gmap_link":value[4], "describe":value[2]};
-          String jsonMsg = jsonEncode(msg);
+          Map<String, dynamic> dataObj = {"place_name":value[3], "latitude":value[0], "longitude":value[1], "gmap_link":value[4], "describe":value[2]};
+          Map<String, dynamic> msgObj = {
+            "cmd_type":5,
+            "target_list":2,
+            "item":dataObj
+          };
+          String msg = jsonEncode(msgObj);
           mqttConnection mqtt = mqttConnection();
-          mqtt.requestToServer('{"cmd_type":5,"target_list":2,"item":$jsonMsg}');
-            //FavoritePlaceList.add({'PlaceID':'tempid', 'PlaceDescribe':value[2], 'PlaceAddress':'${value[0]}, ${value[1]}', 'PlaceName':value[3], 'PlaceURL':value[4]});
-            // if(value[2] == null) {
-            //   FavoritePlaceList.add({'PlaceName':'NoName', 'PlaceAddress':'${value[0]}, ${value[1]}'});
-            // }
-            // else {
-            //
-            // }
-          loadData();
+          mqtt.requestToServer(msg);
+          Fluttertoast.showToast(
+            msg: '해당 장소가 즐겨찾기에 추가되었습니다.',
+            gravity: ToastGravity.BOTTOM,
+
+          );
+          loadData(false);
           setState((){});
         },
         backgroundColor: Colors.deepPurple,

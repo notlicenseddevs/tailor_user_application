@@ -9,6 +9,7 @@ import 'package:tailor_user_application/mqttConnection.dart';
 import 'landingpage.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class RegisterUser extends StatefulWidget {
 
@@ -62,7 +63,7 @@ class _RegisterUserState extends State<RegisterUser> {
                   decoration: InputDecoration(labelText: "PIN (4 integers)"),
                   obscureText: true,
                   obscuringCharacter: '*',
-
+                  maxLength: 4,
                 ),
                   ElevatedButton(
                     onPressed: () async {
@@ -75,7 +76,7 @@ class _RegisterUserState extends State<RegisterUser> {
                         Map<String, dynamic> json =
                           {"cmd_type":9,
                             "user_id":idController.text.toString(),
-                            "passwd":passController.text.toString(),
+                            "passwd":sha256.convert(utf8.encode(passController.text.toString())).toString(),
                             "pin_number":int.parse(pinController.text)
                           };
                         String msg = jsonEncode(json);
@@ -121,7 +122,7 @@ class _RegisterUserState extends State<RegisterUser> {
         key: 'login',
         value: jsonEncode({
           'id':idController.text.toString(),
-          'password':passController.text.toString()
+          'password':sha256.convert(utf8.encode(passController.text.toString())).toString(),
         }),
       ).then((value) {
         Fluttertoast.showToast(

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert' as convert;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:tailor_user_application/crypto_service.dart';
 
 class mqttConnection {
   static final MqttServerClient client = MqttServerClient('43.201.126.212', '');
@@ -14,6 +16,8 @@ class mqttConnection {
   static late StreamController<bool> _registarCheckStream;
   static late StreamController<dynamic> _placeDataStream;
   static late StreamController<dynamic> _playlistDataStream;
+  static late final String deviceId;
+  cryptoService _crypto = cryptoService();
 
   mqttConnection() {
     client.setProtocolV311();
@@ -84,8 +88,10 @@ class mqttConnection {
   }
 
   void initialConnectionHandler(dynamic json) async {
-    serverToClientTopic = '${json['topic_name']}';
-    clientToServerTopic = '${json['topic_name']}/user_command';
+    String jsonTopicName = _crypto.my_decrypt(json['topic_name']);
+    serverToClientTopic = '$jsonTopicName';
+    clientToServerTopic = '$jsonTopicName/user_command';
+
     client.subscribe('${serverToClientTopic}/reply', MqttQos.atMostOnce);
     client.subscribe('${serverToClientTopic}/sw_configs', MqttQos.atMostOnce);
     client.subscribe('${serverToClientTopic}/gps_configs', MqttQos.atMostOnce);
@@ -119,8 +125,10 @@ class mqttConnection {
   void messageHandler(String topic, String msg) {
     dynamic json = convert.jsonDecode(msg);
     print('MQTT messageHandler : $msg');
-    if(topic == 'connect/reply' && json['device_id'] == 'adcc') {
-      initialConnectionHandler(json);
+    if(topic == 'connect/reply') {
+      if(json['device_id'] == deviceId!) {
+        initialConnectionHandler(json);
+      }
       return;
     }
     if(topic == '${serverToClientTopic}/reply') {
@@ -137,7 +145,14 @@ class mqttConnection {
   }
 
   void connect(StreamController<bool> check) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    final AndroidDeviceInfo deviceInfo = await deviceInfoPlugin.androidInfo;
+    deviceId = deviceInfo.id;
+    print('deviceId: $deviceId');
     _initialSubscribeStream = check;
+    await _crypto.initialize(); // only one time!
+
     try {
       await client.connect();
     } on NoConnectionException catch (e) {
@@ -181,7 +196,16 @@ class mqttConnection {
 
     const topic2 = 'connect/request';
     final builder = MqttClientPayloadBuilder();
-    builder.addString('{"dev_type":1,"device_id":"adcc","timestamp":14141,"public_key":"3421a"}');
+
+    Map<String, Object> jsonObj = {
+      "dev_type":1,
+      "device_id":deviceId,
+      "timestamp":14141, // TODO
+      "public_key":_crypto.getMyPublicKey(),
+    };
+    String json = convert.jsonEncode(jsonObj);
+    String msg = _crypto.server_encrypt(json).base64;
+    builder.addString(msg);
     client.publishMessage(topic2, MqttQos.exactlyOnce, builder.payload!);
     return;
   }

@@ -8,6 +8,7 @@ import 'landingpage.dart';
 import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:crypto/crypto.dart';
 
 class Login extends StatefulWidget {
 
@@ -55,7 +56,7 @@ class _LoginState extends State<Login> {
                     _loginRequest = true;
                     _islogin = false;
                     _isWrong = false;
-                    mqtt.loginRequest('{"cmd_type":2,"user_id":"${idController.text.toString()}","passwd":"${passController.text.toString()}"}', check);
+                    mqtt.loginRequest('{"cmd_type":2,"user_id":"${idController.text.toString()}","passwd":"${sha256.convert(utf8.encode(passController.text.toString())).toString()}"}', check);
                   });
                   check.stream.listen((v) => {
                     setState(() {
@@ -85,7 +86,7 @@ class _LoginState extends State<Login> {
         key: 'login',
         value: jsonEncode({
           'id':idController.text.toString(),
-          'password':passController.text.toString()
+          'password':sha256.convert(utf8.encode(passController.text.toString())).toString(),
         }),
       ).then((value) => Get.offAll(MainPage(), arguments: storage));
       return const Text('');

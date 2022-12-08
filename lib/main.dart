@@ -1,25 +1,12 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tailor_user_application/landingpage.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:tailor_user_application/mqttConnection.dart';
 
 Future<void> main() async {
-  // final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-  // final deviceInfo = await deviceInfoPlugin.androidInfo;
-  // final deviceId = deviceInfo.id;
-  StreamController<bool> check = StreamController();
-  mqttConnection mqtt = mqttConnection();
-  try {
-    mqtt.connect(check);
-    check.stream.listen((event) {runApp(const MyApp());});
-  } catch (e, s) {
-    print(s);
-  }
 
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget with WidgetsBindingObserver {
@@ -30,5 +17,4 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
       home: LandingPage(),
     );
   }
-
 }

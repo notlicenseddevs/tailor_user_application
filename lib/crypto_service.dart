@@ -1,8 +1,6 @@
 import 'dart:io';
-
 import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt_io.dart';
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:typed_data';
 import 'package:pointycastle/export.dart';
@@ -26,8 +24,8 @@ class cryptoService {
     if(!_isMaked) {
       _p = AsymmetricBlockCipher('RSA/OAEP');
       _seed = await _getSecureRandomSeed();
-      await _generateRSAkeyPair(_seed).then((v) => _my_encrypter = Encrypter(RSA(publicKey: _my_publicKey, privateKey: _my_privateKey)));
       await _saveServerPublicKey().then((v) => _server_encrypter = Encrypter(RSA(publicKey: _server_publicKey)));
+      await _generateRSAkeyPair(_seed).then((v) => _my_encrypter = Encrypter(RSA(publicKey: _my_publicKey, privateKey: _my_privateKey)));
       _isMaked = true;
     }
     else {

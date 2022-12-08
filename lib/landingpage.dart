@@ -20,6 +20,7 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
   static final storage = new FlutterSecureStorage();
   static final cryptoService appCrypto = cryptoService();
   Widget goingTo = LandingPage();
+  static bool _isConnected = false;
   bool _isReady = false;
   String? userInfo = "";
   mqttConnection mqtt = mqttConnection();
@@ -27,6 +28,7 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    print('init landing!');
     WidgetsBinding.instance.addObserver(this);
     _asyncMethod();
   }
@@ -34,7 +36,13 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
   _asyncMethod() async {
     try {
       StreamController<bool> check = StreamController();
-      mqtt.connect(check);
+      if(!_isConnected) {
+        mqtt.connect(check);
+        _isConnected = true;
+      }
+      else {
+        check.add(true);
+      }
       check.stream.listen((event) async {
         await storage.read(key: "login").then((val){userInfo = val;}).catchError((error) {
           print("error : $error");
@@ -42,7 +50,7 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
         print(userInfo);
 
         if(userInfo != null) {
-          StreamController<bool> check = StreamController<bool>();
+          StreamController<bool> check2 = StreamController<bool>();
           Map<String, dynamic> userInfoObj = jsonDecode(userInfo!);
           print(userInfoObj);
           Map<String, dynamic> loginDataObj = {
@@ -51,8 +59,8 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
             "passwd":userInfoObj['password'], //이미 암호화된 passwd (storage에 저장할 때 암호화함)
           };
           String loginData = jsonEncode(loginDataObj);
-          mqtt.loginRequest(loginData, check);
-          check.stream.listen((v) {
+          mqtt.loginRequest(loginData, check2);
+          check2.stream.listen((v) {
             if(v) {
               Fluttertoast.showToast(
                 msg: '자동 로그인이 완료되었습니다.',

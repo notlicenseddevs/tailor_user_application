@@ -82,6 +82,11 @@ class _LoginState extends State<Login> {
       return const Text('');
     }
     if (!_loginRequest && _islogin && !_isWrong) {
+      Fluttertoast.showToast(
+        msg: '로그인 되었습니다.',
+        gravity: ToastGravity.BOTTOM,
+
+      );
       storage.write(
         key: 'login',
         value: jsonEncode({

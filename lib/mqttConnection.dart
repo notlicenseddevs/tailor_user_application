@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert' as convert;
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,7 +17,8 @@ class mqttConnection {
   static late StreamController<bool> _registarCheckStream;
   static late StreamController<dynamic> _placeDataStream;
   static late StreamController<dynamic> _playlistDataStream;
-  static late final String deviceId;
+  static late String deviceId;
+  static bool _deviceIdMaked = false;
   cryptoService _crypto = cryptoService();
 
   mqttConnection() {
@@ -147,10 +147,13 @@ class mqttConnection {
 
   void connect(StreamController<bool> check) async {
     WidgetsFlutterBinding.ensureInitialized();
-    final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    final AndroidDeviceInfo deviceInfo = await deviceInfoPlugin.androidInfo;
-    deviceId = deviceInfo.id;
-    print('deviceId: $deviceId');
+    if(!_deviceIdMaked) {
+      final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+      final AndroidDeviceInfo deviceInfo = await deviceInfoPlugin.androidInfo;
+      deviceId = deviceInfo.id;
+      print('deviceId: $deviceId');
+      _deviceIdMaked = true;
+    }
     _initialSubscribeStream = check;
     print('crypto intialize start');
     await _crypto.initialize(); // only one time!
@@ -203,7 +206,7 @@ class mqttConnection {
     Map<String, Object> jsonObj = {
       "dev_type":1,
       "device_id":deviceId,
-      "timestamp":14141, // TODO
+      "timestamp":DateTime.now().millisecondsSinceEpoch,
       "public_key":_crypto.getMyPublicKey(),
     };
     final json = convert.jsonEncode(jsonObj);

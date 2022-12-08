@@ -77,7 +77,7 @@ class _RegisterUserState extends State<RegisterUser> {
                           {"cmd_type":9,
                             "user_id":idController.text.toString(),
                             "passwd":sha256.convert(utf8.encode(passController.text.toString())).toString(),
-                            "pin_number":int.parse(pinController.text)
+                            "pin_number":sha256.convert(utf8.encode(int.parse(pinController.text).toString())).toString(),
                           };
                         String msg = jsonEncode(json);
                         mqtt.registarRequest(msg, check);

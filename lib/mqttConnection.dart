@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert' as convert;
+import 'dart:math';
+import 'dart:typed_data';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -55,7 +57,6 @@ class mqttConnection {
     final builder = MqttClientPayloadBuilder();
     builder.addString(msg);
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
-
   }
 
   void registarRequest(String msg, StreamController<bool> check) async {
@@ -151,7 +152,9 @@ class mqttConnection {
     deviceId = deviceInfo.id;
     print('deviceId: $deviceId');
     _initialSubscribeStream = check;
+    print('crypto intialize start');
     await _crypto.initialize(); // only one time!
+    print('crypto intialize end');
 
     try {
       await client.connect();
@@ -203,8 +206,9 @@ class mqttConnection {
       "timestamp":14141, // TODO
       "public_key":_crypto.getMyPublicKey(),
     };
-    String json = convert.jsonEncode(jsonObj);
-    String msg = _crypto.server_encrypt(json).base64;
+    final json = convert.jsonEncode(jsonObj);
+    Uint8List list = _crypto.server_encrypt(json);
+    String msg = convert.base64Encode(list);
     builder.addString(msg);
     client.publishMessage(topic2, MqttQos.exactlyOnce, builder.payload!);
     return;

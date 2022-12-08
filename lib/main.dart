@@ -5,7 +5,6 @@ import 'package:tailor_user_application/landingpage.dart';
 import 'package:tailor_user_application/mqttConnection.dart';
 
 Future<void> main() async {
-
   runApp(const MyApp());
 }
 

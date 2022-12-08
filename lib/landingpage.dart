@@ -89,8 +89,8 @@ class _LandingPageState extends State<LandingPage> with WidgetsBindingObserver {
         alignment: Alignment.center,
         children: [
           Container(
-            color: Colors.orange,
-            child: Center(child: Text("랜딩페이지")),
+            color: Colors.white,
+            child: Center(child: Image.asset('assets/logo.jpg')),
           ),
           CircularProgressIndicator(),
         ],

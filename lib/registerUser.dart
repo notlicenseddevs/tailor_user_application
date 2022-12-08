@@ -1,10 +1,7 @@
 import 'dart:async';
-
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:tailor_user_application/mainpage.dart';
 import 'package:tailor_user_application/mqttConnection.dart';
 import 'landingpage.dart';
 import 'package:get/get.dart';
@@ -139,5 +136,4 @@ class _RegisterUserState extends State<RegisterUser> {
     }
     return const Text('');
   }
-
 }

@@ -39,19 +39,9 @@ class cryptoService {
     return _isMaked;
   }
   Uint8List server_encrypt(String input) {
-    // final utf8Input = utf8.encode(input);
-    // final base64Input = base64Encode(utf8Input);
-    // final Uint8ListInput = base64Decode(base64Input);
-    // final output = _rsaEncrypt(_my_publicKey, Uint8ListInput);
-    // final base64Output = base64.encode(output);
-    // utf8.encoder()
-    // final Uint8ListOutput = base64.decode(base64Output);
-    // final utf8Output = utf8.decode(output);
-    // return utf8Output;
     List<int> list = utf8.encode(input);
     Uint8List bytes = Uint8List.fromList(list);
     Uint8List encrypted = _rsaEncrypt(_server_publicKey, bytes);
-    //String outcome = utf8.decode(bytes);
     return encrypted;
   }
   Uint8List my_encrypt(String input) {

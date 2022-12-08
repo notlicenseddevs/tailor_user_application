@@ -89,7 +89,7 @@ class mqttConnection {
   }
 
   void initialConnectionHandler(dynamic json) async {
-    String jsonTopicName = _crypto.my_decrypt(json['topic_name']);
+    String jsonTopicName = _crypto.my_decrypt(convert.base64Decode(json['topic_name']));
     serverToClientTopic = '$jsonTopicName';
     clientToServerTopic = '$jsonTopicName/user_command';
 

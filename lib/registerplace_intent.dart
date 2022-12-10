@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tailor_user_application/googlemap.dart';
+import 'package:tailor_user_application/locations_service.dart';
 
-class RegisterPlace extends StatefulWidget {
+class RegisterPlaceIntent extends StatefulWidget {
   String? inputText;
   double? lng = 0;
   double? lat = 0;
   String? name;
   String? url;
-  RegisterPlace({this.inputText, this.lng, this.lat, this.name, this.url});
+  RegisterPlaceIntent({this.inputText, this.lng, this.lat, this.name, this.url});
   @override
-  _RegisterPlaceState createState() => _RegisterPlaceState(inputText: inputText, lng: lng, lat: lat, name: name, url: url);
+  _RegisterPlaceIntentState createState() => _RegisterPlaceIntentState(inputText: inputText, lng: lng, lat: lat, name: name, url: url);
 }
 
-class _RegisterPlaceState extends State<RegisterPlace> {
+class _RegisterPlaceIntentState extends State<RegisterPlaceIntent> {
   String? inputText = '';
   String? name = '' ;
   double? lng = 0;
   double? lat = 0;
   String? url = '';
-  _RegisterPlaceState({this.inputText, this.lng, this.lat, this.name, this.url});
+  _RegisterPlaceIntentState({this.inputText, this.lng, this.lat, this.name, this.url});
   TextEditingController _nameController = TextEditingController();
   TextEditingController _describeController = TextEditingController();
   TextEditingController _positionController = TextEditingController();
   TextEditingController _urlController = TextEditingController();
-
-  String p1 = '';
-  String p2 = '';
+  bool _ready = false;
   @override
   void initState() {
     super.initState();
-    if(name != null) {
-      _nameController.text = name!;
-    }
-    if(inputText != null) {
-      _describeController.text = inputText!;
-    }
-    if(url != null) {
-      _urlController.text = url!;
-    }
-    if(lat!=null && lng!=null) {
-      _positionController.text = '위도 : $lat, 경도 : $lng';
-    }
+    readyToUrlLocation();
+  }
+
+  void readyToUrlLocation() async {
+    var position = await LocationService().getPlace(name!);
+    lat = position['geometry']['location']['lat'];
+    lng = position['geometry']['location']['lng'];
+    _positionController.text = '위도 : $lat, 경도 : $lng';
+    _nameController.text = name = position['name'];
+    _urlController.text = url = position['url'];
+    _describeController.text = inputText = 'Shared by GoogleMap';
+    setState(() {
+      _ready = true;
+    });
+    return;
   }
 
   @override
@@ -54,42 +55,10 @@ class _RegisterPlaceState extends State<RegisterPlace> {
         ),),
         backgroundColor: Colors.deepPurple,
       ),
-      body:Container(
+      body: _ready ? Container(
         padding: EdgeInsets.fromLTRB(30, 40, 30, 0),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20.0,0,20.0,20.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                ),
-                onPressed: () async {
-                  List<dynamic> result = await Get.to(SearchbyGoogleMap());
-                  if(result.length == 4) {
-                    print('received from SearchbyGoogleMap');
-                    lng = result[0];
-                    lat = result[1];
-                    _positionController.text = '위도 : $lat, 경도 : $lng';
-                    name = result[2].toString();
-                    if(name!=null) {
-                      _nameController.text = name!;
-                    };
-                    url = result[3].toString();
-                    if(url!=null) {
-                      _urlController.text = url!;
-                    }
-                  }
-                  else {
-                    print('***** ${result.length} received!');
-                  }
-                  setState(() {
-
-                  });
-                },
-                child: Text('Google Map으로 장소 검색하기'),
-              ),
-            ),
             Center(
               child: GestureDetector(
                 onTap: () => FocusScope.of(context).unfocus(),
@@ -101,7 +70,7 @@ class _RegisterPlaceState extends State<RegisterPlace> {
                         child: TextField(
                           controller: _nameController,
                           onChanged: (text) {
-                            inputText = text;
+                            name = text;
                           },
                           decoration: InputDecoration(
                             labelText: '이름',
@@ -199,8 +168,7 @@ class _RegisterPlaceState extends State<RegisterPlace> {
             ),
           ],
         ),
-      ),
-
+      ):CircularProgressIndicator(),
       floatingActionButton: (lat!=null)&(lng!=null) ? FloatingActionButton(
         onPressed: () {
           Get.back(result: [lat, lng, inputText, name, url]);

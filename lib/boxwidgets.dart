@@ -121,7 +121,6 @@ class PlaceBox extends StatelessWidget {
                           Fluttertoast.showToast(
                             msg: '수정하였습니다.',
                             gravity: ToastGravity.BOTTOM,
-
                           );
                           this.callBack(false);
                         },

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -9,19 +8,26 @@ import 'package:tailor_user_application/mqttConnection.dart';
 import 'package:tailor_user_application/registerPlaylist.dart';
 
 class PlayList extends StatefulWidget {
+  bool? doRequest = true;
+  PlayList(this.doRequest);
   @override
-  _PlayListState createState() => _PlayListState();
+  _PlayListState createState() => _PlayListState(doRequest);
 }
 
 class _PlayListState extends State<PlayList> {
   final List PlayList = [];
   mqttConnection mqtt = mqttConnection();
   bool _loading = false;
+  bool? doRequest = true;
+
+  _PlayListState(this.doRequest);
+
   @override
   void initState() {
     super.initState();
-    loadData(true);
+    loadData(doRequest!);
   }
+
 
   void loadData(bool doRefresh) {
     String id;

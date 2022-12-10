@@ -4,19 +4,29 @@ import 'dart:convert' as convert;
 import 'dart:typed_data';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:tailor_user_application/crypto_service.dart';
 
 class mqttConnection {
-  static final MqttServerClient client = MqttServerClient('43.201.126.212', '');
+  static final MqttServerClient client = MqttServerClient('34.64.86.97', '');
   static late final String clientToServerTopic;
   static late final String serverToClientTopic;
+
   static late StreamController<bool> _initialSubscribeStream;
+  bool _initialSubscribeStreamReady = true;
   static late StreamController<bool> _loginCheckStream;
+  bool _loginCheckStreamReady = true;
   static late StreamController<bool> _registarCheckStream;
+  bool _registarCheckStreamReady = true;
   static late StreamController<dynamic> _placeDataStream;
+  bool _placeDataStreamReady = true;
   static late StreamController<dynamic> _playlistDataStream;
+  bool _playlistDataStreamReady = true;
+  static late var _faceReplyFunction;
+
   static late String deviceId;
   static bool _deviceIdMaked = false;
   cryptoService _crypto = cryptoService();
@@ -34,6 +44,7 @@ class mqttConnection {
     if (client.connectionStatus!.disconnectionOrigin ==
         MqttDisconnectionOrigin.solicited) {
       print('EXAMPLE::OnDisconnected callback is solicited, this is correct');
+      exit(0);
 
     } else {
       print(
@@ -59,8 +70,16 @@ class mqttConnection {
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
   }
 
+  void faceRequest(String msg, dynamic func) async {
+    _faceReplyFunction = func;
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(msg);
+    client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
+  }
+
   void registarRequest(String msg, StreamController<bool> check) async {
     _registarCheckStream = check;
+    _registarCheckStreamReady = true;
     final builder = MqttClientPayloadBuilder();
     builder.addString(msg);
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
@@ -68,6 +87,7 @@ class mqttConnection {
 
   void loginRequest(String msg, StreamController<bool> check) async {
     _loginCheckStream = check;
+    _loginCheckStreamReady = true;
     final builder = MqttClientPayloadBuilder();
     builder.addString(msg);
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
@@ -76,6 +96,7 @@ class mqttConnection {
   void placeRequest(String msg, StreamController<dynamic> data) async {
     final builder = MqttClientPayloadBuilder();
     _placeDataStream = data;
+    _placeDataStreamReady = true;
     builder.addString(msg);
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
   }
@@ -84,6 +105,7 @@ class mqttConnection {
     print('playlist request called!! : $msg');
     final builder = MqttClientPayloadBuilder();
     _playlistDataStream = data;
+    _playlistDataStreamReady = true;
     builder.addString(msg);
     client.publishMessage(clientToServerTopic, MqttQos.exactlyOnce, builder.payload!);
   }
@@ -105,22 +127,35 @@ class mqttConnection {
     if(request_type == 1) {
       bool isSucceed = json['succeed'];
       print(isSucceed);
-      _loginCheckStream.add(isSucceed);
+      if(_loginCheckStreamReady) _loginCheckStream.add(isSucceed);
+      else print('_loginCheckStream Not ready!');
+    }
+    else if(request_type == 3) {
+      _faceReplyFunction(json['succeed']);
     }
     else if(request_type == 9) {
       bool isSucceed = json['succeed'];
       print(isSucceed);
-      _registarCheckStream.add(isSucceed);
+      if(_registarCheckStreamReady) _registarCheckStream.add(isSucceed);
+      else print('_registarCheckStream Not ready!');
+    }
+    else if(request_type == 10) {
+      Fluttertoast.showToast(msg: '다른 기기에서 접속하여 앱을 종료합니다.');
+      SystemNavigator.pop();
     }
     return;
   }
   void swHandler(dynamic json) {
     print(json);
-    _playlistDataStream.add(json);
+    if(_playlistDataStreamReady) _playlistDataStream.add(json);
+    else print('_playlistDataStream Not ready!');
+
   }
   void gpsHandler(dynamic json) {
     print(json);
-    _placeDataStream.add(json);
+    if(_placeDataStreamReady) _placeDataStream.add(json);
+    else print('_placeDataStream Not ready!');
+
   }
 
   void messageHandler(String topic, String msg) {
@@ -128,7 +163,8 @@ class mqttConnection {
     print('MQTT messageHandler : $msg');
     if(topic == 'connect/reply') {
       if(json['device_id'] == deviceId!) {
-        initialConnectionHandler(json);
+        if(_initialSubscribeStreamReady) initialConnectionHandler(json);
+        else print('_initialSubscribeStream Not ready!');
       }
       return;
     }
@@ -155,11 +191,14 @@ class mqttConnection {
       _deviceIdMaked = true;
     }
     _initialSubscribeStream = check;
+    _initialSubscribeStreamReady = true;
     print('crypto intialize start');
     await _crypto.initialize(); // only one time!
     print('crypto intialize end');
 
+
     try {
+      client.keepAlivePeriod = 10000;
       await client.connect();
     } on NoConnectionException catch (e) {
       // Raised by the client when connection fails.

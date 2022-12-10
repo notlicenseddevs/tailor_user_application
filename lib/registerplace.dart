@@ -25,8 +25,6 @@ class _RegisterPlaceState extends State<RegisterPlace> {
   TextEditingController _positionController = TextEditingController();
   TextEditingController _urlController = TextEditingController();
 
-  String p1 = '';
-  String p2 = '';
   @override
   void initState() {
     super.initState();
@@ -101,7 +99,7 @@ class _RegisterPlaceState extends State<RegisterPlace> {
                         child: TextField(
                           controller: _nameController,
                           onChanged: (text) {
-                            inputText = text;
+                            name = text;
                           },
                           decoration: InputDecoration(
                             labelText: '이름',

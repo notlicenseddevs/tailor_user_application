@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:tailor_user_application/boxwidgets.dart';
@@ -35,17 +36,18 @@ class _FavoritePlaceState extends State<FavoritePlace> {
     _loading = true;
     setState(() {});
     if(doRefresh) {
+      print('do Refresh!');
       mqtt.placeRequest('{"cmd_type":4,"refresh_target":2}', data);
     }
     data.stream.listen((v) {
       print(v.length);
       for(int i=0;i<v.length;i++) {
         id = v[i]['_id'];
-        place_name = v[i]['place_name'];
-        latitude = v[i]['latitude'];
-        longitude = v[i]['longitude'];
-        gmap_link = v[i]['gmap_link'];
-        describe = v[i]['describe'];
+        place_name = v[i]['place_name']!=null ? v[i]['place_name'] : 'NONE';
+        latitude = v[i]['latitude']!=null ? v[i]['latitude'] : 0;
+        longitude = v[i]['longitude']!=null ? v[i]['longitude'] : 0;
+        gmap_link = v[i]['gmap_link']!=null ? v[i]['gmap_link'] : 'NONE';
+        describe = v[i]['describe']!=null ? v[i]['describe'] : 'NONE';
         FavoritePlaceList.add({'PlaceID':id, 'PlaceDescribe':describe, 'PlaceLat':latitude, 'PlaceLng':longitude, 'PlaceName':place_name, 'PlaceURL':gmap_link});
       }
       setState(() {
@@ -88,9 +90,15 @@ class _FavoritePlaceState extends State<FavoritePlace> {
       ,
       floatingActionButton: !_loading ? FloatingActionButton(
         onPressed: () async {
-          List<dynamic?> value = await Get.to(RegisterPlace()) as List<dynamic?>;
+          List<dynamic> value = await Get.to(RegisterPlace()) as List<dynamic>;
           print(value);
-          Map<String, dynamic> dataObj = {"place_name":value[3], "latitude":value[0], "longitude":value[1], "gmap_link":value[4], "describe":value[2]};
+          Map<String, dynamic> dataObj = {
+            "place_name":value[3],
+            "latitude":value[0],
+            "longitude":value[1],
+            "gmap_link":value[4],
+            "describe":value[2]
+          };
           Map<String, dynamic> msgObj = {
             "cmd_type":5,
             "target_list":2,
